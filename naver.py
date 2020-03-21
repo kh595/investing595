@@ -1,12 +1,15 @@
 import pandas as pd
 import numpy as np
 import krx
+import mongodb
+
 from datetime import datetime
 
 class da:
     def __init__(self):
         self.code_df = krx.get_code_df()
         self.symbol_dic = {'dow':'DJI@DJI', 'nasdaq':'NAS@IXIC', 'sp':'SPI@SPX', 'sh':'SHS@000001'}
+        self.mongo = mongodb.da()
     
     def get_code_by_name(self, item_name):
         retVal = self.code_df.query("name=='{}'".format(item_name))['code'].to_string(index=False)

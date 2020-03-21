@@ -39,5 +39,13 @@ class Test_testNaverDataAdapter(unittest.TestCase):
     def test_get_data_world_index(self):
         self.assertNotEqual(len(self.da.get_ts_data_world_index('dow', 2)), 0)
 
+    def test_insert_db(self):
+        df = self.da.get_ts_data_world_index('dow',2)        
+        self.da.mongo.client.test.world_index.insert_many(df.to_dict('records'))
+        result = self.da.mongo.client.test.world_index.find_one()
+        self.assertNotEqual(result, None)
+
+        
+
 if __name__ == '__main__':
     unittest.main()
