@@ -119,7 +119,18 @@ class stock_da(naver_da):
 
         ttdf = tdf.iloc[:,4:]
         # ttdf.columns = pd.to_datetime(['2018-12-31', '2019-03-31', '2019-06-30', '2019-09-30', '2019-12-31', '2020-03-31'])
-        return ttdf.transpose()      
+        return ttdf.transpose()   
+    
+    def get_펀더멘털(self, code):
+        url = "https://navercomp.wisereport.co.kr/v2/company/c1010001.aspx?cmp_cd={}".format(code)
+        try:
+            dfs = pd.read_html(url)
+        except:
+            return None
+        if (len(dfs) > 5):        
+            return pd.read_html(url)[5]
+        else:
+            return None
    
 class index_da(naver_da):
     def __init__(self):

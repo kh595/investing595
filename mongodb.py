@@ -17,8 +17,11 @@ class da():
         if add_df.empty == False:
             target_collection.insert_many(new_df[~new_df.index.isin(target_df.index)].reset_index().to_dict('records'))
 
-    def collection_to_df(self, collection, index_str):
-        sdf = pd.DataFrame(list(collection.find()))
+    def collection_to_df(self, collection, index_str):        
+        tlist = list(collection.find())
+        if len(tlist) == 0:
+            return None
+        sdf = pd.DataFrame(tlist)        
         del sdf['_id']
         sdf = sdf.set_index(index_str)
         sdf = sdf.sort_index(ascending=False)

@@ -34,5 +34,8 @@ class Test_testNaverDataAdapter(unittest.TestCase):
     def test_get_main_jonghapjungbo_giup_siljuk_bunsuk_bungi(self):
         self.assertNotEqual(len(self.da.get_종합정보_기업실적분석_분기('035420')), 0)
 
+    def test_get_fundamental(self):
+        self.assertNotEqual(len(self.da.get_펀더멘털('035420')), 0)
+
 if __name__ == '__main__':
     unittest.main()
