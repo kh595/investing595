@@ -12,13 +12,13 @@ class naver_da(DataAdaptor.DataAdaptor):
     def __init__(self):
         super().__init__()
 
-    def get_ts_data(self, url, range_num=200, table_num=0, date_str='날짜'):
+    def get_ts_data(self, url, range_num=200, table_num=0, header_num=0, date_str='날짜'):
         print("요청 URL = {}".format(url))
         
         df = pd.DataFrame()
         for page in range(1,range_num):
             pg_url = '{url}&page={page}'.format(url=url, page=page)
-            df = df.append(pd.read_html(pg_url, header=0, encoding='euc-kr')[table_num], ignore_index=True)
+            df = df.append(pd.read_html(pg_url, header=header_num, encoding='euc-kr')[table_num], ignore_index=True)
 
         df = df.dropna()
         df[date_str] = pd.to_datetime(df[date_str])
@@ -35,7 +35,7 @@ class stock_da(naver_da):
         if retVal == 'Series([], )':
             return None
         else:
-            return retVal
+            return retVal.strip()
 
     def get_url_by_name(self, item_name):
         code = self.get_code_by_name(item_name)
@@ -151,7 +151,7 @@ class index_da(naver_da):
     def get_ts_data_exchange(self, name, range_num=200):
         currency_name = self.exchang_dic[name]
         url = "https://finance.naver.com/marketindex/exchangeDailyQuote.nhn?marketindexCd={taget_name}".format(taget_name=currency_name)
-        return self.get_ts_data(url, range_num)                            
+        return self.get_ts_data(url, range_num, header_num=1)                            
 
     def get_ts_data_oil(self, name, range_num=200):
         url = "https://finance.naver.com/marketindex/worldDailyQuote.nhn?marketindexCd=OIL_CL&fdtc=2"

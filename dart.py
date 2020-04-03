@@ -111,7 +111,7 @@ def get_quarter_fin(tdf):
                 year_val = 0
                 target_dic[row['결산기준일']] = val
 
-    tSeries = pd.Series.from_array(target_dic)
+    tSeries = pd.Series(target_dic)
     tSeries.index = pd.to_datetime(tSeries.index)  
 
     for i in range(len(tSeries)):

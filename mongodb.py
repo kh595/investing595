@@ -7,7 +7,7 @@ class da():
         self.prot = port
         self.client = MongoClient(ip, port)
 
-    def insert_new(self, target_collection, new_df, index_str):
+    def insert_new(self, target_collection, new_df, index_str="날짜"):
         target_df = pd.DataFrame(list(target_collection.find()))
         del target_df['_id']
         target_df = target_df.set_index(index_str).sort_index(ascending=False)
@@ -17,7 +17,7 @@ class da():
         if add_df.empty == False:
             target_collection.insert_many(new_df[~new_df.index.isin(target_df.index)].reset_index().to_dict('records'))
 
-    def collection_to_df(self, collection, index_str):        
+    def collection_to_df(self, collection, index_str="날짜"):        
         tlist = list(collection.find())
         if len(tlist) == 0:
             return None
