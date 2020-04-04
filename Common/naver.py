@@ -1,18 +1,36 @@
+"""
+    Naver 데이터 수집 Module
+    ~~~~~~~~~~~
+"""
+
 import pandas as pd
 import numpy as np
 from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
 
+# import os
+# import sys
+# sys.path.append('./Common')
+
 import krx
 import mongodb
 import DataAdaptor
 
 class naver_da(DataAdaptor.DataAdaptor):
+    """Naver DataAdaptor 기본모듈
+    """
     def __init__(self):
         super().__init__()
-
+    
     def get_ts_data(self, url, range_num=200, table_num=0, header_num=0, date_str='날짜'):
+        """TimeSeries 정보 받아오기
+
+        :param string url: naver request url
+        :param int range_num: 받아올 데이터의 page 개수
+        :param int table_num: pandas read_html 호출 시 table 넘버 (기능별 다름)
+        :param string date_str: 시계열 데이터의 DataIndex 이름
+        """
         print("요청 URL = {}".format(url))
         
         df = pd.DataFrame()
@@ -28,10 +46,11 @@ class naver_da(DataAdaptor.DataAdaptor):
 class stock_da(naver_da):
     def __init__(self):
         super().__init__()
-        self.code_df = krx.get_code_df()
+        self.code_df = self.mongodb.collection_to_df(self.mongodb.client.asset.code, 'name')
+        # self.code_df = krx.get_code_df()
     
     def get_code_by_name(self, item_name):
-        retVal = self.code_df.query("name=='{}'".format(item_name))['code'].to_string(index=False)
+        retVal = self.code_df.query("name=='{}'".format(item_name)).code.to_string(index=False, header=False).strip()
         if retVal == 'Series([], )':
             return None
         else:
@@ -58,7 +77,8 @@ class stock_da(naver_da):
         html = requests.get(URL).text
         soup = BeautifulSoup(html, 'html.parser')
         finance_html = soup.select('table.per_table')
-
+        if len(finance_html) == 0:
+            return None
         per = finance_html[0].find(id='_per')
         pbr = finance_html[0].find(id='_pbr')
         시총 = soup.select('div.first')[0].find(id='_market_sum')
@@ -71,7 +91,7 @@ class stock_da(naver_da):
         if 시총 is not None:
             시총 = int(시총.text.strip().replace('\n','').replace('\t','').replace(',','').replace('조',''))
         if 액면가 is not None:
-            액면가 = int(액면가[0].text)
+            액면가 = int(액면가[0].text.replace(',',''))
         
         return {'per':per, 'pbr':pbr, '시총':시총, '액면가':액면가}
 
@@ -124,14 +144,17 @@ class stock_da(naver_da):
     def get_펀더멘털(self, code):
         url = "https://navercomp.wisereport.co.kr/v2/company/c1010001.aspx?cmp_cd={}".format(code)
         try:
-            dfs = pd.read_html(url)
+            dfs = pd.read_html(url, encoding='utf-8')
         except:
             return None
         if (len(dfs) > 5):        
-            return pd.read_html(url)[5]
+            return pd.read_html(url, encoding='utf-8')[5]
         else:
             return None
-   
+    def get_배당정보(self):
+        url = 'https://finance.naver.com/sise/dividend_list.nhn'
+        return pd.read_html(url, header=1, encoding='euc-kr')[0].dropna()
+
 class index_da(naver_da):
     def __init__(self):
         super().__init__()

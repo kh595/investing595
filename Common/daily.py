@@ -1,5 +1,6 @@
-import naver
 import mongodb
+import naver
+
 
 def insert_new_data():    
     naver_index = naver.index_da() 

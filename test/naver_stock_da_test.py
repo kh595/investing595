@@ -37,5 +37,8 @@ class Test_testNaverDataAdapter(unittest.TestCase):
     def test_get_fundamental(self):
         self.assertNotEqual(len(self.da.get_펀더멘털('035420')), 0)
 
+    def test_get_baedang_info(self):
+        self.assertNotEqual(len(self.da.get_배당정보()), 0)
+    
 if __name__ == '__main__':
     unittest.main()
